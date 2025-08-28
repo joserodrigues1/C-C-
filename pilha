@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define um tamanho máximo para os campos de texto e para a pilha
+#define MAX_TITULO 100
+#define MAX_AUTOR 100
+#define MAX_PILHA 10 // A pilha pode conter no máximo 10 livros
+
+// --- ESTRUTURAS ---
+
+// Estrutura para representar um Livro
+typedef struct {
+char titulo[MAX_TITULO];
+char autor[MAX_AUTOR];
+int ano;
+} Livro;
+
+// Estrutura para representar a Pilha de Livros
+typedef struct {
+Livro itens[MAX_PILHA]; // Vetor (array) que armazena os livros
+int topo; // Índice do elemento no topo da pilha
+} PilhaDeLivros;
+
+// --- PROTÓTIPOS DAS FUNÇÕES ---
+
+void inicializarPilha(PilhaDeLivros *p);
+int pilhaVazia(PilhaDeLivros *p);
+int pilhaCheia(PilhaDeLivros *p);
+void empilhar(PilhaDeLivros *p, Livro novoLivro);
+Livro desempilhar(PilhaDeLivros *p);
+void exibir(PilhaDeLivros *p);
+void limparBuffer();
+
+// --- FUNÇÃO PRINCIPAL ---
+
+int main() {
+PilhaDeLivros minhaPilha;
+Livro livro;
+int opcao;
+
+// Inicializa a pilha como vazia
+inicializarPilha(&minhaPilha);
+
+do {
+    printf("\n--- MENU PILHA DE LIVROS ---\n");
+    printf("1. Empilhar livro\n");
+    printf("2. Desempilhar livro\n");
+    printf("3. Exibir pilha\n");
+    printf("0. Sair\n");
+    printf("----------------------------\n");
+    printf("Escolha uma opcao: ");
+    scanf("%d", &opcao);
+    limparBuffer(); // Limpa o buffer de entrada para evitar problemas com strings
+
+    switch (opcao) {
+        case 1:
+            if (pilhaCheia(&minhaPilha)) {
+                printf("\nERRO: A pilha esta cheia! Nao e possivel adicionar mais livros.\n");
+            } else {
+                printf("\n-- Adicionar Novo Livro --\n");
+                printf("Digite o titulo: ");
+                fgets(livro.titulo, MAX_TITULO, stdin);
+                livro.titulo[strcspn(livro.titulo, "\n")] = 0; // Remove o \n do final
+
+                printf("Digite o autor: ");
+                fgets(livro.autor, MAX_AUTOR, stdin);
+                livro.autor[strcspn(livro.autor, "\n")] = 0; // Remove o \n do final
+
+                printf("Digite o ano de publicacao: ");
+                scanf("%d", &livro.ano);
+                limparBuffer();
+
+                empilhar(&minhaPilha, livro);
+            }
+            break;
+
+        case 2:
+            if (pilhaVazia(&minhaPilha)) {
+                 printf("\nERRO: A pilha esta vazia! Nao ha livros para remover.\n");
+            } else {
+                livro = desempilhar(&minhaPilha);
+                printf("\nLivro removido do topo da pilha:\n");
+                printf(" -> Titulo: %s, Autor: %s, Ano: %d\n", livro.titulo, livro.autor, livro.ano);
+            }
+            break;
+
+        case 3:
+            exibir(&minhaPilha);
+            break;
+
+        case 0:
+            printf("\nEncerrando o programa...\n");
+            break;
+
+        default:
+            printf("\nOpcao invalida! Tente novamente.\n");
+            break;
+    }
+
+} while (opcao != 0);
+
+return 0;
+}
+
+// --- IMPLEMENTAÇÃO DAS FUNÇÕES ---
+
+/**
+
+@brief Inicializa a pilha, definindo seu topo como -1 para indicar que está vazia.
+@param p Ponteiro para a pilha a ser inicializada.
+*/
+void inicializarPilha(PilhaDeLivros *p) {
+p->topo = -1;
+}
+/**
+
+@brief Verifica se a pilha está vazia.
+@param p Ponteiro para a pilha.
+@return 1 se a pilha estiver vazia, 0 caso contrário.
+*/
+int pilhaVazia(PilhaDeLivros *p) {
+return p->topo == -1;
+}
+/**
+
+@brief Verifica se a pilha está cheia.
+@param p Ponteiro para a pilha.
+@return 1 se a pilha estiver cheia, 0 caso contrário.
+*/
+int pilhaCheia(PilhaDeLivros *p) {
+return p->topo == MAX_PILHA - 1;
+}
+/**
+
+@brief Adiciona (empilha) um novo livro no topo da pilha.
+@param p Ponteiro para a pilha.
+@param novoLivro O livro a ser adicionado.
+*/
+void empilhar(PilhaDeLivros *p, Livro novoLivro) {
+// A verificação de pilha cheia é feita na main para melhor feedback ao usuário
+p->topo++; // Incrementa o topo
+p->itens[p->topo] = novoLivro; // Adiciona o item na nova posição do topo
+printf("\nLivro '%s' empilhado com sucesso!\n", novoLivro.titulo);
+}
+/**
+
+@brief Remove (desempilha) o livro do topo da pilha.
+@param p Ponteiro para a pilha.
+@return O livro que foi removido.
+*/
+Livro desempilhar(PilhaDeLivros *p) {
+// A verificação de pilha vazia é feita na main
+Livro livroRemovido = p->itens[p->topo]; // Pega o livro do topo
+p->topo--; // Decrementa o topo
+return livroRemovido;
+}
+/**
+
+@brief Exibe todos os livros da pilha, do topo para a base.
+
+@param p Ponteiro para a pilha.
+*/
+void exibir(PilhaDeLivros *p) {
+if (pilhaVazia(p)) {
+printf("\n>> A pilha de livros esta vazia. <<\n");
+return;
+}
+
+printf("\n--- LIVROS NA PILHA (do topo para a base) ---\n");
+for (int i = p->topo; i >= 0; i--) {
+printf("[%d] Titulo: %s | Autor: %s | Ano: %d\n",
+i, p->itens[i].titulo, p->itens[i].autor, p->itens[i].ano);
+}
+printf("---------------------------------------------\n");
+}
+
+/**
+
+@brief Limpa o buffer de entrada do teclado. Essencial após usar scanf.
+*/
+void limparBuffer() {
+int c;
+while ((c = getchar()) != '\n' && c != EOF);
+}
