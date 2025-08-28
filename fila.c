@@ -104,3 +104,112 @@ int main() {
                 break;
         }
     } while (opcao != 0);
+
+    return 0;
+}
+
+// --- IMPLEMENTAÇÃO DAS FUNÇÕES ---
+
+/**
+ * @brief Inicializa a fila, marcando-a como vazia.
+ */
+void inicializarFila(Fila *f) {
+    f->inicio = 0;
+    f->fim = -1;
+    f->quantidade = 0;
+}
+
+/**
+ * @brief Verifica se a fila está vazia.
+ */
+int filaVazia(Fila *f) {
+    return f->quantidade == 0;
+}
+
+/**
+ * @brief Verifica se a fila está cheia.
+ */
+int filaCheia(Fila *f) {
+    return f->quantidade == MAX_FILA;
+}
+
+/**
+ * @brief Adiciona um elemento no final da fila (lógica circular).
+ */
+void enfileirar(Fila *f, int valor) {
+    // A verificação de fila cheia é feita na main
+    f->fim = (f->fim + 1) % MAX_FILA; // Avança o 'fim' de forma circular
+    f->itens[f->fim] = valor;
+    f->quantidade++;
+    printf("\nElemento %d adicionado a fila.\n", valor);
+}
+
+/**
+ * @brief Remove um elemento do início da fila (lógica circular).
+ */
+int desenfileirar(Fila *f) {
+    // A verificação de fila vazia é feita na main
+    int valorRemovido = f->itens[f->inicio];
+    f->inicio = (f->inicio + 1) % MAX_FILA; // Avança o 'inicio' de forma circular
+    f->quantidade--;
+    return valorRemovido;
+}
+
+/**
+ * @brief Mostra todos os elementos da fila, do início ao fim.
+ */
+void mostrarTodos(Fila *f) {
+    if (filaVazia(f)) {
+        printf("\n>> A fila esta vazia. <<\n");
+        return;
+    }
+
+    printf("\n--- Elementos na Fila ---\n");
+    printf("Inicio -> ");
+    int i = f->inicio;
+    int count;
+    for (count = 0; count < f->quantidade; count++) {
+        printf("[%d] ", f->itens[i]);
+        i = (i + 1) % MAX_FILA; // Move para o próximo índice de forma circular
+    }
+    printf("<- Fim\n");
+    printf("---------------------------\n");
+}
+
+/**
+ * @brief Pesquisa por um elemento na fila.
+ * @return A posição lógica do elemento (0 para o primeiro) se encontrado, ou -1 se não.
+ */
+int pesquisarElemento(Fila *f, int valor) {
+    int i = f->inicio;
+    int count;
+    for (count = 0; count < f->quantidade; count++) {
+        if (f->itens[i] == valor) {
+            return count; // Retorna a posição lógica (0, 1, 2...)
+        }
+        i = (i + 1) % MAX_FILA;
+    }
+    return -1; // Não encontrou
+}
+
+/**
+ * @brief Mostra o elemento em uma posição lógica específica.
+ */
+void mostrarElementoPosicao(Fila *f, int pos) {
+    if (pos < 0 || pos >= f->quantidade) {
+        printf("\nERRO: Posicao invalida! A fila tem %d elementos (posicoes de 0 a %d).\n", f->quantidade, f->quantidade - 1);
+        return;
+    }
+
+    // Calcula o índice real no vetor circular
+    int indiceReal = (f->inicio + pos) % MAX_FILA;
+    printf("\nO elemento na posicao %d e: %d\n", pos, f->itens[indiceReal]);
+}
+
+/**
+ * @brief Limpa o buffer de entrada do teclado.
+ */
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
